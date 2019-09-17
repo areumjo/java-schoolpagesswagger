@@ -1,11 +1,10 @@
 package com.lambdaschool.school.controller;
 
 import com.lambdaschool.school.model.Course;
+import com.lambdaschool.school.model.ErrorDetail;
 import com.lambdaschool.school.model.Student;
 import com.lambdaschool.school.service.CourseService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -51,10 +50,18 @@ public class CourseController
         return new ResponseEntity<>(myCourses, HttpStatus.OK);
     }
 
+    // customize swagger
     // localhost:2019/course/course/{courseid}
+    @ApiOperation(value = "Return a course associated with the course id", response = Course.class, responseContainer = "List")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Course by course-id Found", response = Course.class),
+            @ApiResponse(code = 404, message = "Course by course-id Not Found", response = ErrorDetail.class)
+    })
     @GetMapping(value = "/course/{courseid}",
             produces = {"application/json"})
-    public ResponseEntity<?> getCourseById(@PathVariable long courseid)
+    public ResponseEntity<?> getCourseById(
+            @ApiParam(value = "Course id", required = true, example = "1")
+            @PathVariable long courseid)
     {
         Course cour = courseService.findCourseById(courseid);
         return new ResponseEntity<>(cour, HttpStatus.OK);

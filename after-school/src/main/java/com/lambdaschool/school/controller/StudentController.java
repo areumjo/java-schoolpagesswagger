@@ -1,8 +1,13 @@
 package com.lambdaschool.school.controller;
 
 import com.lambdaschool.school.model.Course;
+import com.lambdaschool.school.model.ErrorDetail;
 import com.lambdaschool.school.model.Student;
 import com.lambdaschool.school.service.StudentService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -38,7 +43,7 @@ public class StudentController
         return new ResponseEntity<>(myStudents, HttpStatus.OK);
     }
 
-    // localhost:2019/courses/allstudents
+    // localhost:2019/students/allstudents
     @GetMapping(value = "allstudents", produces = {"application/json"})
     public ResponseEntity<?> reallListAllStudents()
     {
@@ -46,11 +51,18 @@ public class StudentController
         return new ResponseEntity<>(myStudents, HttpStatus.OK);
     }
 
+    // localhost:2019/students/student/{studentid}
+    @ApiOperation(value = "Return a student associated with the course id", response = Course.class, responseContainer = "List")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Student by student-id Found", response = Course.class),
+            @ApiResponse(code = 404, message = "Course by student-id Not Found", response = ErrorDetail.class)
+    })
     @GetMapping(value = "/Student/{StudentId}",
             produces = {"application/json"})
     public ResponseEntity<?> getStudentById(
+            @ApiParam(value = "Student Id", required = true, example = "1")
             @PathVariable
-                    Long StudentId)
+                    long StudentId)
     {
         Student r = studentService.findStudentById(StudentId);
         return new ResponseEntity<>(r, HttpStatus.OK);
@@ -66,8 +78,13 @@ public class StudentController
         return new ResponseEntity<>(myStudents, HttpStatus.OK);
     }
 
-
-    @PostMapping(value = "/Student",
+    // localhost:2019/students/student -- POST
+    @ApiOperation(value = "Creates a new student.", notes = "The newly created student-id will be sent in the location header", response = void.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Student Successfully Created", response = void.class),
+            @ApiResponse(code = 500, message = "Error creating student", response = ErrorDetail.class)
+    })
+    @PostMapping(value = "/student",
             consumes = {"application/json"},
             produces = {"application/json"})
     public ResponseEntity<?> addNewStudent(@Valid
