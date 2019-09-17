@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/courses")
@@ -25,10 +26,18 @@ public class CourseController
     @GetMapping(value = "/courses", produces = {"application/json"})
     public ResponseEntity<?> listAllCourses(
             @PageableDefault(page = 0,
-                    size = 5)
+                    size = 3)
                     Pageable pageable)
     {
         ArrayList<Course> myCourses = courseService.findAll(pageable);
+        return new ResponseEntity<>(myCourses, HttpStatus.OK);
+    }
+
+    // localhost:2019/courses/allcourses
+    @GetMapping(value = "allcourses", produces = {"application/json"})
+    public ResponseEntity<?> reallListAllCourse()
+    {
+        List<Course> myCourses = courseService.findAll(Pageable.unpaged());
         return new ResponseEntity<>(myCourses, HttpStatus.OK);
     }
 

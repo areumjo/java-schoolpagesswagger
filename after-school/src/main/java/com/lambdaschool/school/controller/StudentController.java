@@ -1,5 +1,6 @@
 package com.lambdaschool.school.controller;
 
+import com.lambdaschool.school.model.Course;
 import com.lambdaschool.school.model.Student;
 import com.lambdaschool.school.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,14 @@ public class StudentController
                     Pageable pageable)
     {
         List<Student> myStudents = studentService.findAll(pageable);
+        return new ResponseEntity<>(myStudents, HttpStatus.OK);
+    }
+
+    // localhost:2019/courses/allstudents
+    @GetMapping(value = "allstudents", produces = {"application/json"})
+    public ResponseEntity<?> reallListAllStudents()
+    {
+        List<Student> myStudents = studentService.findAll(Pageable.unpaged());
         return new ResponseEntity<>(myStudents, HttpStatus.OK);
     }
 
