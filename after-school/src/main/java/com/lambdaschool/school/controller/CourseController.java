@@ -8,11 +8,16 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,4 +84,34 @@ public class CourseController
         courseService.delete(courseid);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    // localhost:2019/courses/course -- post
+    @ApiOperation(value = "Creates a new Course.", notes = "The newly created course id will be sent in the location header", response = void.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Course Successfully Created", response = void.class),
+            @ApiResponse(code = 500, message = "Error creating course", response = ErrorDetail.class)
+    })
+    @PostMapping(value = "/course",
+                consumes = {"application/json"},
+                produces = {"application/json"})
+    public ResponseEntity<?> addNewCourse(@Valid @RequestBody Course newCourse) throws URISyntaxException
+    {
+        newCourse = courseService.save(newCourse);
+        // set the location header for the newly created resource
+        HttpHeaders responseHeaders = new HttpHeaders();
+        URI newCourseURI = ServletUriComponentsBuilder.fromCurrentRequest().path("/{courseid}").buildAndExpand(newCourse.getCourseid()).toUri();
+        responseHeaders.setLocation(newCourseURI);
+
+        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+    }
+
+    // localhost:2019/courses/course -- put
+    @PutMapping(value = "/course/{courseid}")
+    public ResponseEntity<?> updateCourse(@RequestBody Course updateCourse,
+                                          @PathVariable long courseid)
+    {
+        courseService.update(updateCourse, courseid);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
